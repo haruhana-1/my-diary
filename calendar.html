@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Diary | Calendar</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f6f3;
+      color: #444;
+      margin: 0;
+      padding: 40px 15px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 30px;
+      margin-bottom: 30px;
+    }
+
+    .calendar {
+      width: 100%;
+      max-width: 700px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    /* 달력 상단 */
+    .calendar-header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 25px;
+      margin-bottom: 25px;
+    }
+
+    .calendar-header h2 {
+      font-size: 22px;
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    .nav-button {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #777;
+      cursor: pointer;
+      padding: 5px 10px;
+    }
+
+    .nav-button:hover {
+      color: #758b7c;
+    }
+
+    /* 달력 표 */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th {
+      height: 45px;
+      font-size: 14px;
+      font-weight: normal;
+      color: #777;
+    }
+
+    td {
+      height: 85px;
+      padding: 5px 2px;
+      text-align: center;
+      vertical-align: top;
+      border-top: 1px solid #f0eeeb;
+    }
+
+    /* 날짜 */
+    .day-number {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 35px;
+      height: 35px;
+      margin: 0 auto;
+      border-radius: 50%;
+      text-decoration: none;
+      color: #444;
+      font-size: 14px;
+    }
+
+    .day-number:hover {
+      background-color: #eeece7;
+    }
+
+    /* 오늘 날짜 */
+    .today {
+      background-color: #d8e5dc;
+      font-weight: bold;
+    }
+
+    /* 일요일 */
+    .sunday {
+      color: #d77;
+    }
+
+    /* 토요일 */
+    .saturday {
+      color: #7799bb;
+    }
+
+    /* 주요 이벤트 */
+    .event-text {
+      font-size: 11px;
+      color: #758b7c;
+      line-height: 1.4;
+      margin-top: 4px;
+      padding: 0 2px;
+      overflow-wrap: anywhere;
+
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* 오늘 버튼 */
+    .today-button {
+      display: block;
+      margin: 25px auto 0;
+      padding: 10px 25px;
+      background-color: #eeece7;
+      color: #555;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .today-button:hover {
+      background-color: #d8e5dc;
+    }
+
+    /* 휴대폰 화면 */
+    @media (max-width: 500px) {
+
+      body {
+        padding: 25px 10px;
+      }
+
+      .calendar {
+        padding: 15px 8px;
+      }
+
+      .calendar-header {
+        gap: 10px;
+      }
+
+      .calendar-header h2 {
+        font-size: 19px;
+      }
+
+      td {
+        height: 75px;
+        padding: 4px 1px;
+      }
+
+      .day-number {
+        width: 30px;
+        height: 30px;
+        font-size: 13px;
+      }
+
+      .event-text {
+        font-size: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>My Diary</h1>
+
+  <div class="calendar">
+
+    <!-- 달력 상단 -->
+    <div class="calendar-header">
+
+      <button
+        class="nav-button"
+        id="prevMonth"
+        aria-label="이전 달"
+      >
+        ◀
+      </button>
+
+      <h2 id="monthTitle"></h2>
+
+      <button
+        class="nav-button"
+        id="nextMonth"
+        aria-label="다음 달"
+      >
+        ▶
+      </button>
+
+    </div>
+
+    <!-- 달력 -->
+    <table>
+      <thead>
+        <tr>
+          <th class="sunday">일</th>
+          <th>월</th>
+          <th>화</th>
+          <th>수</th>
+          <th>목</th>
+          <th>금</th>
+          <th class="saturday">토</th>
+        </tr>
+      </thead>
+
+      <tbody id="calendarBody"></tbody>
+    </table>
+
+    <!-- 오늘로 이동 -->
+    <button class="today-button" id="goToday">
+      오늘로 이동
+    </button>
+
+  </div>
+
+  <script>
+
+    // 1. 현재 날짜 가져오기
+    const today = new Date();
+
+    let currentYear = today.getFullYear();
+    let currentMonth = today.getMonth();
+
+    // 날짜를 YYYY-MM-DD 형태로 만들기
+    function formatDate(year, month, day) {
+      return (
+        year + "-" +
+        String(month + 1).padStart(2, "0") + "-" +
+        String(day).padStart(2, "0")
+      );
+    }
+
+    // 2. 달력 만들기
+    function renderCalendar() {
+
+      const calendarBody =
+        document.getElementById("calendarBody");
+
+      const monthTitle =
+        document.getElementById("monthTitle");
+
+      // 기존 달력 지우기
+      calendarBody.innerHTML = "";
+
+      // 연도와 월 표시
+      monthTitle.textContent =
+        `${currentYear}년 ${currentMonth + 1}월`;
+
+      // 이번 달 1일의 요일
+      const firstDay = new Date(
+        currentYear,
+        currentMonth,
+        1
+      ).getDay();
+
+      // 이번 달 마지막 날짜
+      const lastDate = new Date(
+        currentYear,
+        currentMonth + 1,
+        0
+      ).getDate();
+
+      let date = 1;
+
+      // 달력은 최대 6주
+      for (let week = 0; week < 6; week++) {
+
+        const row = document.createElement("tr");
+
+        for (let day = 0; day < 7; day++) {
+
+          const cell = document.createElement("td");
+
+          // 첫 주의 빈칸과 마지막 날짜 이후 빈칸
+          if (
+            (week === 0 && day < firstDay) ||
+            date > lastDate
+          ) {
+            row.appendChild(cell);
+            continue;
+          }
+
+          // 날짜 문자열
+          const dateString = formatDate(
+            currentYear,
+            currentMonth,
+            date
+          );
+
+          // 날짜 링크
+          const link = document.createElement("a");
+
+          link.href = `diary.html?date=${dateString}`;
+          link.textContent = date;
+          link.className = "day-number";
+
+          // 일요일 색상
+          if (day === 0) {
+            link.classList.add("sunday");
+          }
+
+          // 토요일 색상
+          if (day === 6) {
+            link.classList.add("saturday");
+          }
+
+          // 오늘 날짜 표시
+          if (
+            currentYear === today.getFullYear() &&
+            currentMonth === today.getMonth() &&
+            date === today.getDate()
+          ) {
+            link.classList.add("today");
+            link.setAttribute("aria-current", "date");
+          }
+
+          cell.appendChild(link);
+
+          // 3. 저장된 주요 이벤트 불러오기
+          let savedDiary = null;
+
+          try {
+            savedDiary = JSON.parse(
+              localStorage.getItem("diary-" + dateString)
+            );
+          } catch (error) {
+            console.error("일기를 불러올 수 없습니다.", error);
+          }
+
+          // 주요 이벤트가 있다면 표시
+          if (savedDiary && savedDiary.events) {
+
+            const eventText =
+              document.createElement("div");
+
+            eventText.className = "event-text";
+            eventText.textContent = savedDiary.events;
+
+            cell.appendChild(eventText);
+          }
+
+          row.appendChild(cell);
+
+          date++;
+        }
+
+        calendarBody.appendChild(row);
+
+        // 마지막 날짜까지 만들었다면 종료
+        if (date > lastDate) {
+          break;
+        }
+      }
+    }
+
+    // 4. 이전 달
+    document.getElementById("prevMonth")
+      .addEventListener("click", () => {
+
+        currentMonth--;
+
+        if (currentMonth < 0) {
+          currentMonth = 11;
+          currentYear--;
+        }
+
+        renderCalendar();
+      });
+
+    // 5. 다음 달
+    document.getElementById("nextMonth")
+      .addEventListener("click", () => {
+
+        currentMonth++;
+
+        if (currentMonth > 11) {
+          currentMonth = 0;
+          currentYear++;
+        }
+
+        renderCalendar();
+      });
+
+    // 6. 오늘로 이동
+    document.getElementById("goToday")
+      .addEventListener("click", () => {
+
+        const now = new Date();
+
+        currentYear = now.getFullYear();
+        currentMonth = now.getMonth();
+
+        renderCalendar();
+      });
+
+    // 7. 처음 실행할 때 달력 표시
+    renderCalendar();
+
+  </script>
+
+</body>
+</html>

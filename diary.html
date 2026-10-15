@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>나의 하루 | My Diary</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f6f3;
+      color: #444;
+      margin: 0;
+      padding: 40px 20px;
+      line-height: 1.6;
+    }
+
+    .diary {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 30px;
+      margin-bottom: 10px;
+    }
+
+    .date {
+      text-align: center;
+      color: #888;
+      margin-bottom: 25px;
+    }
+
+    .back {
+      display: inline-block;
+      color: #777;
+      text-decoration: none;
+      margin-bottom: 25px;
+    }
+
+    /* 기본 영역 디자인 */
+    .section {
+      background-color: white;
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 17px;
+    }
+
+    h2 {
+      font-size: 19px;
+      margin-top: 0;
+      margin-bottom: 15px;
+    }
+
+    textarea,
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #e5e3df;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 16px;
+      color: #444;
+      background-color: white;
+    }
+
+    textarea {
+      resize: vertical;
+      line-height: 1.8;
+    }
+
+    /* To-do List와 감사일기 높이 줄이기 */
+    .compact-section {
+      padding: 15px 20px;
+      margin-bottom: 15px;
+    }
+
+    .compact-section h2 {
+      margin-bottom: 10px;
+    }
+
+    /* To-do List */
+    .todo-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .todo-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .todo-item input[type="text"] {
+      flex: 1;
+      min-width: 0;
+      padding: 8px 12px;
+    }
+
+    .todo-item input:checked + input {
+      text-decoration: line-through;
+      color: #aaa;
+    }
+
+    /* 할 일 삭제 버튼 */
+    .delete-button {
+      background: none;
+      border: none;
+      color: #aaa;
+      font-size: 22px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+
+    .delete-button:hover {
+      color: #d77;
+    }
+
+    /* 할 일 추가 버튼 */
+    .add-button {
+      background-color: #eeece7;
+      color: #555;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-top: 5px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .add-button:hover {
+      background-color: #e2dfd8;
+    }
+
+    /* 감사일기 */
+    .gratitude input {
+      padding: 8px 12px;
+      margin-bottom: 6px;
+    }
+
+    .gratitude input:last-child {
+      margin-bottom: 0;
+    }
+
+    /* 하루일기는 넉넉하게 */
+    .journal-section {
+      padding: 30px;
+    }
+
+    /* 저장 버튼 */
+    .save-button {
+      display: block;
+      width: 100%;
+      padding: 18px;
+      background-color: #758b7c;
+      color: white;
+      font-size: 17px;
+      border: none;
+      border-radius: 8px;
+      margin-top: 30px;
+      cursor: pointer;
+    }
+
+    .save-button:hover {
+      background-color: #627769;
+    }
+
+    #message {
+      text-align: center;
+      color: #627769;
+      min-height: 30px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="diary">
+
+    <h1>My Diary</h1>
+
+    <p class="date" id="diaryDate"></p>
+
+    <a href="calendar.html" class="back">
+      ← 달력으로 돌아가기
+    </a>
+
+    <!-- 01. 주요 이벤트 -->
+    <section class="section">
+      <h2>01. 주요 이벤트</h2>
+
+      <textarea
+        id="events"
+        rows="3"
+        placeholder="오늘의 중요한 일을 기록해 보세요."
+      ></textarea>
+    </section>
+
+    <!-- 02. To-do List -->
+    <section class="section compact-section">
+      <h2>02. To-do List</h2>
+
+      <div id="todoList"></div>
+
+      <button
+        type="button"
+        class="add-button"
+        id="addTodo"
+      >
+        + 할 일 추가
+      </button>
+    </section>
+
+    <!-- 03. 감사일기 -->
+    <section class="section compact-section gratitude">
+      <h2>03. 감사일기</h2>
+
+      <input
+        type="text"
+        id="gratitude1"
+        placeholder="1. 첫 번째 감사한 일"
+      >
+
+      <input
+        type="text"
+        id="gratitude2"
+        placeholder="2. 두 번째 감사한 일"
+      >
+
+      <input
+        type="text"
+        id="gratitude3"
+        placeholder="3. 세 번째 감사한 일"
+      >
+    </section>
+
+    <!-- 04. 하루일기 -->
+    <section class="section journal-section">
+      <h2>04. 하루일기</h2>
+
+      <textarea
+        id="journal"
+        rows="15"
+        placeholder="오늘 하루는 어땠나요?"
+      ></textarea>
+    </section>
+
+    <button
+      type="button"
+      class="save-button"
+      id="saveButton"
+    >
+      저장하기
+    </button>
+
+    <p id="message" role="status"></p>
+
+  </main>
+
+  <script>
+    // 1. 달력에서 클릭한 날짜 가져오기
+    const params = new URLSearchParams(window.location.search);
+    const requestedDate = params.get("date");
+
+    function isValidDate(value) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(value || "")) {
+        return false;
+      }
+
+      const [year, month, day] = value.split("-").map(Number);
+      const date = new Date(year, month - 1, day);
+
+      return date.getFullYear() === year &&
+             date.getMonth() === month - 1 &&
+             date.getDate() === day;
+    }
+
+    const today = new Date();
+
+    const todayString =
+      today.getFullYear() + "-" +
+      String(today.getMonth() + 1).padStart(2, "0") + "-" +
+      String(today.getDate()).padStart(2, "0");
+
+    const selectedDate = isValidDate(requestedDate)
+      ? requestedDate
+      : todayString;
+
+    const [year, month, day] = selectedDate.split("-").map(Number);
+
+    const weekdays = [
+      "일요일", "월요일", "화요일", "수요일",
+      "목요일", "금요일", "토요일"
+    ];
+
+    const weekday = new Date(year, month - 1, day).getDay();
+
+    document.getElementById("diaryDate").textContent =
+      `${year}년 ${month}월 ${day}일 ${weekdays[weekday]}`;
+
+    // 2. 할 일 추가하기
+    function addTodo(text = "", checked = false) {
+
+      const item = document.createElement("div");
+      item.className = "todo-item";
+
+      // 체크박스
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = checked;
+      checkbox.setAttribute("aria-label", "할 일 완료");
+
+      // 할 일 입력칸
+      const input = document.createElement("input");
+      input.type = "text";
+      input.placeholder = "할 일을 입력하세요";
+      input.value = text;
+
+      // 삭제 버튼
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.className = "delete-button";
+      deleteButton.textContent = "×";
+      deleteButton.setAttribute("aria-label", "할 일 삭제");
+
+      // 삭제 버튼 클릭 시 해당 할 일 제거
+      deleteButton.addEventListener("click", () => {
+        item.remove();
+      });
+
+      // 화면에 추가
+      item.appendChild(checkbox);
+      item.appendChild(input);
+      item.appendChild(deleteButton);
+
+      document.getElementById("todoList").appendChild(item);
+    }
+
+    // + 할 일 추가 버튼
+    document.getElementById("addTodo").addEventListener("click", () => {
+      addTodo();
+    });
+
+    // 3. 저장된 일기 불러오기
+    const storageKey = "diary-" + selectedDate;
+
+    let savedData = null;
+
+    try {
+      savedData = JSON.parse(localStorage.getItem(storageKey));
+    } catch (error) {
+      console.error("일기를 불러올 수 없습니다.", error);
+    }
+
+    if (savedData) {
+
+      document.getElementById("events").value =
+        savedData.events || "";
+
+      document.getElementById("gratitude1").value =
+        savedData.gratitude1 || "";
+
+      document.getElementById("gratitude2").value =
+        savedData.gratitude2 || "";
+
+      document.getElementById("gratitude3").value =
+        savedData.gratitude3 || "";
+
+      document.getElementById("journal").value =
+        savedData.journal || "";
+
+      // 저장된 할 일 불러오기
+      if (Array.isArray(savedData.todos)) {
+        savedData.todos.forEach(todo => {
+          addTodo(todo.text, todo.checked);
+        });
+      } else {
+        addTodo();
+      }
+
+    } else {
+      // 처음 열었을 때는 할 일 한 줄만 표시
+      addTodo();
+    }
+
+    // 4. 일기 저장하기
+    document.getElementById("saveButton").addEventListener("click", () => {
+
+      const todos = [];
+
+      document.querySelectorAll(".todo-item").forEach(item => {
+        todos.push({
+          text: item.querySelector('input[type="text"]').value,
+          checked: item.querySelector('input[type="checkbox"]').checked
+        });
+      });
+
+      const diaryData = {
+        events: document.getElementById("events").value,
+        todos: todos,
+        gratitude1: document.getElementById("gratitude1").value,
+        gratitude2: document.getElementById("gratitude2").value,
+        gratitude3: document.getElementById("gratitude3").value,
+        journal: document.getElementById("journal").value
+      };
+
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(diaryData));
+
+        document.getElementById("message").textContent =
+          "일기가 저장되었습니다. 🌿";
+
+      } catch (error) {
+        document.getElementById("message").textContent =
+          "저장하지 못했습니다. 브라우저 설정을 확인해 주세요.";
+      }
+    });
+  </script>
+
+</body>
+</html>
